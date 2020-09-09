@@ -56,7 +56,7 @@ var tweetSummary = function () { return __awaiter(_this, void 0, void 0, functio
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 5, , 6]);
+                _a.trys.push([0, 6, , 7]);
                 return [4 /*yield*/, node_fetch_1.default(API_URL + "/daily/cases", { method: 'GET' })];
             case 1:
                 cases = _a.sent();
@@ -73,13 +73,16 @@ var tweetSummary = function () { return __awaiter(_this, void 0, void 0, functio
                 formattedDate = date.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 tweetText = formattedDate + "\nCases: " + casesParsed + " \uD83E\uDDA0\nDeaths: " + deathsParsed + " \u26B0\uFE0F\n#COVID19 #ireland #covid19Ireland";
                 console.log({ tweetText: tweetText });
-                return [3 /*break*/, 6];
+                return [4 /*yield*/, postPromise(tweetText)];
             case 5:
+                _a.sent();
+                return [3 /*break*/, 7];
+            case 6:
                 err_1 = _a.sent();
                 console.log('Error caught');
                 console.error(err_1);
-                return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+                return [3 /*break*/, 7];
+            case 7: return [2 /*return*/];
         }
     });
 }); };
