@@ -1,10 +1,9 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -38,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var twit_1 = __importDefault(require("twit"));
 var dotenv_1 = __importDefault(require("dotenv"));
@@ -51,33 +51,35 @@ var twitClient = new twit_1.default({
     access_token: process.env.ACCESS_TOKEN,
     access_token_secret: process.env.ACCESS_TOKEN_SECRET
 });
-var tweetSummary = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var res, stats, irishSummary, date, formattedDate, tweetText, err_1;
+var tweetSummary = function () { return __awaiter(_this, void 0, void 0, function () {
+    var cases, deaths, casesParsed, deathsParsed, date, formattedDate, tweetText, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 4, , 5]);
-                return [4 /*yield*/, node_fetch_1.default(API_URL, { method: 'GET', redirect: 'follow' })];
+                _a.trys.push([0, 5, , 6]);
+                return [4 /*yield*/, node_fetch_1.default(API_URL + "/daily/cases", { method: 'GET' })];
             case 1:
-                res = _a.sent();
-                return [4 /*yield*/, res.json()];
+                cases = _a.sent();
+                return [4 /*yield*/, node_fetch_1.default(API_URL + "/daily/deaths", { method: 'GET' })];
             case 2:
-                stats = _a.sent();
-                irishSummary = stats['Countries'].filter(function (country) { return country.Slug === 'ireland'; })[0];
-                date = new Date(irishSummary.Date);
-                formattedDate = date.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                tweetText = formattedDate + "\nCases: " + irishSummary.NewConfirmed + " \uD83E\uDDA0\nDeaths: " + irishSummary.NewDeaths + " \u26B0\uFE0F\n#COVID19 #ireland #covid19Ireland";
-                console.log({ tweetText: tweetText });
-                return [4 /*yield*/, postPromise(tweetText)];
+                deaths = _a.sent();
+                return [4 /*yield*/, cases.json()];
             case 3:
-                _a.sent();
-                return [3 /*break*/, 5];
+                casesParsed = _a.sent();
+                return [4 /*yield*/, deaths.json()];
             case 4:
+                deathsParsed = _a.sent();
+                date = new Date();
+                formattedDate = date.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                tweetText = formattedDate + "\nCases: " + casesParsed + " \uD83E\uDDA0\nDeaths: " + deathsParsed + " \u26B0\uFE0F\n#COVID19 #ireland #covid19Ireland";
+                console.log({ tweetText: tweetText });
+                return [3 /*break*/, 6];
+            case 5:
                 err_1 = _a.sent();
                 console.log('Error caught');
                 console.error(err_1);
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
+                return [3 /*break*/, 6];
+            case 6: return [2 /*return*/];
         }
     });
 }); };
@@ -89,7 +91,7 @@ var postPromise = util_1.promisify(function (tweetText) { return twitClient.post
     if (data)
         console.log("Data: " + JSON.stringify(data));
 }); });
-exports.handler = function () { return __awaiter(void 0, void 0, void 0, function () {
+exports.handler = function () { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, tweetSummary()];

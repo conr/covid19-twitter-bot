@@ -5,19 +5,6 @@ import { promisify } from 'util'
 
 dotenv.config()
 
-export interface ICountryStat {
-  Country: string
-  CountryCode: string,
-  Slug: string,
-  NewConfirmed: number,
-  TotalConfirmed: number,
-  NewDeaths: number,
-  TotalDeaths: number,
-  NewRecovered: number,
-  TotalRecovered: number,
-  Date: string
-}
-
 const API_URL = process.env.API_URL || ''
 
 const twitClient = new Twit({
@@ -29,15 +16,16 @@ const twitClient = new Twit({
 
 const tweetSummary = async () => {
   try {
-    const res = await fetch(API_URL, { method: 'GET', redirect: 'follow' })
-    const stats = await res.json()
-    const irishSummary: ICountryStat = stats['Countries'].filter((country: ICountryStat) => country.Slug === 'ireland')[0]
-    const date = new Date(irishSummary.Date)
-    const formattedDate = date.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    const cases = await fetch(`${API_URL}/daily/cases`, { method: 'GET' })
+    const deaths = await fetch(`${API_URL}/daily/deaths`, { method: 'GET' })
+    const casesParsed = await cases.json()
+    const deathsParsed = await deaths.json()
 
+    const date = new Date()
+    const formattedDate = date.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     const tweetText = `${formattedDate}
-Cases: ${irishSummary.NewConfirmed} 🦠
-Deaths: ${irishSummary.NewDeaths} ⚰️
+Cases: ${casesParsed} 🦠
+Deaths: ${deathsParsed} ⚰️
 #COVID19 #ireland #covid19Ireland`
 
     console.log({ tweetText })
