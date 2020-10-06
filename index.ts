@@ -46,11 +46,11 @@ class CovidTweeter {
       const date = new Date()
       const formattedDate = date.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       const tweetText = `${formattedDate}
-  Cases: ${casesParsed} 🦠
-  Deaths: ${deathsParsed} ⚰️
-  Confirmed cases in Hospital: ${hospitalizations} 🩺
-  Confirmed cases in ICU: ${icuAdmissions} 🏥
-  #COVID19 #ireland #covid19Ireland`
+Cases: ${casesParsed} 🦠
+Deaths: ${deathsParsed} ⚰️
+Confirmed cases in Hospital: ${hospitalizations} 🩺
+Confirmed cases in ICU: ${icuAdmissions} 🏥
+#COVID19 #ireland #covid19Ireland`
 
       await this.postPromise(tweetText)
     } catch (err) {

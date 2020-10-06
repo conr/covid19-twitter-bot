@@ -89,7 +89,7 @@ var CovidTweeter = /** @class */ (function () {
                         icuAdmissions = icuCasesParsed.features[0].attributes.ncovidconf_sum;
                         date = new Date();
                         formattedDate = date.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                        tweetText = formattedDate + "\n  Cases: " + casesParsed + " \uD83E\uDDA0\n  Deaths: " + deathsParsed + " \u26B0\uFE0F\n  Confirmed cases in Hospital: " + hospitalizations + " \uD83E\uDE7A\n  Confirmed cases in ICU: " + icuAdmissions + " \uD83C\uDFE5\n  #COVID19 #ireland #covid19Ireland";
+                        tweetText = formattedDate + "\nCases: " + casesParsed + " \uD83E\uDDA0\nDeaths: " + deathsParsed + " \u26B0\uFE0F\nConfirmed cases in Hospital: " + hospitalizations + " \uD83E\uDE7A\nConfirmed cases in ICU: " + icuAdmissions + " \uD83C\uDFE5\n#COVID19 #ireland #covid19Ireland";
                         return [4 /*yield*/, this.postPromise(tweetText)];
                     case 9:
                         _a.sent();
