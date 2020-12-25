@@ -31,6 +31,8 @@ class CovidTweeter {
 
   tweetSummary = async () => {
     try {
+      const currDate = new Date()
+      const dataFreshnessDate = await fetch(`${this.API_URL}/info/date`, { method: 'GET' })
       const cases = await fetch(`${this.API_URL}/daily/cases`, { method: 'GET' })
       const deaths = await fetch(`${this.API_URL}/daily/deaths`, { method: 'GET' })
       const hospitalCases = await fetch(this.HOSPITAL_URL, { method: 'GET' })
@@ -39,12 +41,11 @@ class CovidTweeter {
       const deathsParsed = await deaths.json()
       const hospitalCasesParsed = await hospitalCases.json()
       const icuCasesParsed = await icuCases.json()
-      console.log(hospitalCasesParsed)
+      const dataFreshnessDateParsed = new Date(await dataFreshnessDate.text()).toDateString()
       const hospitalizations = hospitalCasesParsed.features[0].attributes.SUM_number_of_confirmed_covid_1_sum
       const icuAdmissions = icuCasesParsed.features[0].attributes.ncovidconf_sum
 
-      const date = new Date()
-      const formattedDate = date.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+      const formattedDate = currDate.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       const tweetText = `${formattedDate}
 Cases: ${casesParsed} 🦠
 Deaths: ${deathsParsed} ⚰️
@@ -52,7 +53,11 @@ Confirmed cases in Hospital: ${hospitalizations} 🩺
 Confirmed cases in ICU: ${icuAdmissions} 🏥
 #COVID19 #ireland #covid19Ireland`
 
-      await this.postPromise(tweetText)
+      if (currDate.toDateString() === dataFreshnessDateParsed) {
+        await this.postPromise(tweetText)
+      } else {
+        console.log('Stale data. Skipping...')
+      }
     } catch (err) {
       console.error(err)
     }
