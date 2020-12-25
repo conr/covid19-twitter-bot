@@ -46,12 +46,7 @@ class CovidTweeter {
       const icuAdmissions = icuCasesParsed.features[0].attributes.ncovidconf_sum
 
       const formattedDate = currDate.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-      const tweetText = `${formattedDate}
-Cases: ${casesParsed} 🦠
-Deaths: ${deathsParsed} ⚰️
-Confirmed cases in Hospital: ${hospitalizations} 🩺
-Confirmed cases in ICU: ${icuAdmissions} 🏥
-#COVID19 #ireland #covid19Ireland`
+      const tweetText = `${formattedDate}\nCases: ${casesParsed} 🦠\nDeaths: ${deathsParsed} ⚰\nConfirmed cases in Hospital: ${hospitalizations} 🩺\nConfirmed cases in ICU: ${icuAdmissions} 🏥\n#COVID19 #ireland #covid19Ireland`
 
       if (currDate.toDateString() === dataFreshnessDateParsed) {
         await this.postPromise(tweetText)
