@@ -55,11 +55,11 @@ var CovidTweeter = /** @class */ (function () {
         this.access_token = process.env.ACCESS_TOKEN;
         this.access_token_secret = process.env.ACCESS_TOKEN_SECRET;
         this.tweetSummary = function () { return __awaiter(_this, void 0, void 0, function () {
-            var currDate, dataFreshnessDate, cases, deaths, hospitalCases, icuCases, casesParsed, deathsParsed, hospitalCasesParsed, icuCasesParsed, dataFreshnessDateParsed, _a, hospitalizations, icuAdmissions, formattedDate, tweetText, err_1;
+            var currDate, dataFreshnessDate, cases, deaths, hospitalCases, icuCases, casesParsed, deathsParsed, hospitalCasesParsed, icuCasesParsed, dataFreshnessDateParsed, _a, hospitalizations, icuAdmissions, currDateStr, formattedDate, tweetText, alreadyTweeted, err_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 14, , 15]);
+                        _b.trys.push([0, 17, , 18]);
                         currDate = new Date();
                         return [4 /*yield*/, node_fetch_1.default(this.API_URL + "/info/date", { method: 'GET' })];
                     case 1:
@@ -94,26 +94,57 @@ var CovidTweeter = /** @class */ (function () {
                         dataFreshnessDateParsed = new (_a.apply(Date, [void 0, _b.sent()]))().toDateString();
                         hospitalizations = hospitalCasesParsed.features[0].attributes.SUM_number_of_confirmed_covid_1_sum;
                         icuAdmissions = icuCasesParsed.features[0].attributes.ncovidconf_sum;
+                        currDateStr = currDate.toDateString();
                         formattedDate = currDate.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                         tweetText = formattedDate + "\nCases: " + casesParsed + " \uD83E\uDDA0\nDeaths: " + deathsParsed + " \u26B0\nConfirmed cases in Hospital: " + hospitalizations + " \uD83E\uDE7A\nConfirmed cases in ICU: " + icuAdmissions + " \uD83C\uDFE5\n#COVID19 #ireland #covid19Ireland";
-                        if (!(currDate.toDateString() === dataFreshnessDateParsed)) return [3 /*break*/, 12];
-                        return [4 /*yield*/, this.postPromise(tweetText)];
+                        return [4 /*yield*/, this.hasTweetedToday(currDateStr)];
                     case 11:
+                        alreadyTweeted = _b.sent();
+                        console.log(alreadyTweeted);
+                        if (!(currDateStr === dataFreshnessDateParsed)) return [3 /*break*/, 15];
+                        if (!alreadyTweeted) return [3 /*break*/, 12];
+                        console.log('Already Tweeted today\'s stats. Skipping...');
+                        return [3 /*break*/, 14];
+                    case 12: return [4 /*yield*/, this.publishTweet(tweetText)];
+                    case 13:
                         _b.sent();
-                        return [3 /*break*/, 13];
-                    case 12:
+                        _b.label = 14;
+                    case 14: return [3 /*break*/, 16];
+                    case 15:
                         console.log('Stale data. Skipping...');
-                        _b.label = 13;
-                    case 13: return [3 /*break*/, 15];
-                    case 14:
+                        _b.label = 16;
+                    case 16: return [3 /*break*/, 18];
+                    case 17:
                         err_1 = _b.sent();
                         console.error(err_1);
-                        return [3 /*break*/, 15];
-                    case 15: return [2 /*return*/];
+                        return [3 /*break*/, 18];
+                    case 18: return [2 /*return*/];
                 }
             });
         }); };
-        this.postPromise = util_1.promisify(function (tweetText) { return _this.twitClient.post('statuses/update', { status: tweetText }, function (err, data, response) {
+        this.hasTweetedToday = function (currDate) { return __awaiter(_this, void 0, void 0, function () {
+            var params, response, result, err_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = { q: 'from:ireland_covid19', count: 1 };
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.twitClient.get('statuses/user_timeline', params)];
+                    case 2:
+                        response = (_a.sent());
+                        result = new Date(response.data[0].created_at).toDateString() === currDate;
+                        return [2 /*return*/, result];
+                    case 3:
+                        err_2 = _a.sent();
+                        console.error(err_2);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); };
+        this.publishTweet = util_1.promisify(function (tweetText) { return _this.twitClient.post('statuses/update', { status: tweetText }, function (err, data, response) {
             if (err)
                 console.error("Error: " + JSON.stringify(err));
             if (response)
@@ -135,7 +166,7 @@ var CovidTweeter = /** @class */ (function () {
     }
     return CovidTweeter;
 }());
-exports.handler = function () { return __awaiter(void 0, void 0, void 0, function () {
+var main = function () { return __awaiter(void 0, void 0, void 0, function () {
     var bot;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -148,3 +179,4 @@ exports.handler = function () { return __awaiter(void 0, void 0, void 0, functio
         }
     });
 }); };
+main();
