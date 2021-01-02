@@ -8,6 +8,14 @@ dotenv.config()
 type UserTimelineResponse = {
   data: Twitter.Status[]
 }
+
+type SwabData = {
+  positive_swabs: number,
+  positivity_rate: string,
+  swabs_24hr: number,
+  date: string
+}
+
 class CovidTweeter {
   private API_URL = process.env.API_URL
   private HOSPITAL_URL = process.env.HOSPITAL_URL || ''
@@ -39,6 +47,8 @@ class CovidTweeter {
       const deaths = await fetch(`${this.API_URL}/daily/deaths`, { method: 'GET' })
       const hospitalCases = await fetch(this.HOSPITAL_URL, { method: 'GET' })
       const icuCases = await fetch(this.ICU_URL, { method: 'GET' })
+      const swabData = await fetch(`${this.API_URL}/swabs/json`, { method: 'GET' })
+      const swabParsed = await swabData.json() as SwabData
       const casesParsed = await cases.json()
       const deathsParsed = await deaths.json()
       const hospitalCasesParsed = await hospitalCases.json()
@@ -49,7 +59,7 @@ class CovidTweeter {
 
       const currDateStr = currDate.toDateString()
       const formattedDate = currDate.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-      const tweetText = `${formattedDate}\nCases: ${casesParsed} 🦠\nDeaths: ${deathsParsed} ⚰\nConfirmed cases in Hospital: ${hospitalizations} 🩺\nConfirmed cases in ICU: ${icuAdmissions} 🏥\n#COVID19 #ireland #covid19Ireland`
+      const tweetText = `${formattedDate}\nCases: ${casesParsed} 🦠\nDeaths: ${deathsParsed} ⚰\nConfirmed cases in Hospital: ${hospitalizations} 🩺\nConfirmed cases in ICU: ${icuAdmissions} 🏥\nPositive swabs: ${swabParsed.positive_swabs}\nSwab positivity rate: ${swabParsed.positivity_rate}\nSwabs in last 24 hours: ${swabParsed.swabs_24hr}\n#COVID19 #ireland #covid19Ireland`
 
       const alreadyTweeted = await this.hasTweetedToday(currDateStr)
 
