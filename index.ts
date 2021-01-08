@@ -16,10 +16,18 @@ type SwabData = {
   date: string
 }
 
+type VaccinationData = {
+  totalVaccinations: number,
+  vaccineName: string,
+  source: string,
+  date: string
+}
+
 class CovidTweeter {
   private API_URL = process.env.API_URL
   private HOSPITAL_URL = process.env.HOSPITAL_URL || ''
   private ICU_URL = process.env.ICU_URL || ''
+  private VACCINATION_DATA_URL = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/country_data/Ireland.csv'
   private consumer_key = process.env.APPLICATION_CONSUMER_KEY
   private consumer_secret = process.env.APPLICATION_CONSUMER_SECRET
   private access_token = process.env.ACCESS_TOKEN
@@ -53,13 +61,17 @@ class CovidTweeter {
       const deathsParsed = await deaths.json()
       const hospitalCasesParsed = await hospitalCases.json()
       const icuCasesParsed = await icuCases.json()
+      const vacinationDataResponse = await fetch(this.VACCINATION_DATA_URL, { method: 'GET' })
+      const vacinationDataCsv = await vacinationDataResponse.text()
+      const vacinationData = this.vaccinationDataFromCsv(vacinationDataCsv)
       const dataFreshnessDateParsed = new Date(await dataFreshnessDate.text()).toDateString()
       const hospitalizations = hospitalCasesParsed.features[0].attributes.SUM_number_of_confirmed_covid_1_sum
       const icuAdmissions = icuCasesParsed.features[0].attributes.ncovidconf_sum
 
       const currDateStr = currDate.toDateString()
       const formattedDate = currDate.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-      const tweetText = `${formattedDate}\nCases: ${casesParsed} 🦠\nDeaths: ${deathsParsed} ⚰\nConfirmed cases in Hospital: ${hospitalizations} 🩺\nConfirmed cases in ICU: ${icuAdmissions} 🏥\nPositive swabs: ${swabParsed.positive_swabs}\nSwab positivity rate: ${swabParsed.positivity_rate}\nSwabs in last 24 hours: ${swabParsed.swabs_24hr}\n#COVID19 #ireland #covid19Ireland`
+      const tweetText = `${formattedDate}\nCaes: ${casesParsed} 🦠\nDeaths: ${deathsParsed}\nConfirmed cases in Hospital: ${hospitalizations} 🩺\nConfirmed cases in ICU: ${icuAdmissions} 🏥\nPositive swabs: ${swabParsed.positive_swabs}\nSwab positivity rate: ${swabParsed.positivity_rate}\nSwabs in last 24 hours: ${swabParsed.swabs_24hr}\nVaccinations since ${vacinationData.date}: ${vacinationData.totalVaccinations} #COVID19 #ireland #covid19Ireland`
+      console.log(tweetText)
 
       const alreadyTweeted = await this.hasTweetedToday(currDateStr)
 
@@ -75,6 +87,20 @@ class CovidTweeter {
     } catch (err) {
       console.error(err)
     }
+  }
+
+  private vaccinationDataFromCsv = (csv: string) => {
+    const array = csv.split("\n").filter(el => { return el != '' })
+    const rowArray = array[array.length - 1].split(",")
+
+    const vaccinationData: VaccinationData = {
+      date: rowArray[1],
+      vaccineName: rowArray[2],
+      totalVaccinations: +rowArray[3],
+      source: rowArray[4],
+    }
+
+    return vaccinationData
   }
 
   private hasTweetedToday = async (currDate: string) =>  {
