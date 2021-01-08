@@ -71,7 +71,6 @@ class CovidTweeter {
       const currDateStr = currDate.toDateString()
       const formattedDate = currDate.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       const tweetText = `${formattedDate}\nCaes: ${casesParsed} 🦠\nDeaths: ${deathsParsed}\nConfirmed cases in Hospital: ${hospitalizations} 🩺\nConfirmed cases in ICU: ${icuAdmissions} 🏥\nPositive swabs: ${swabParsed.positive_swabs}\nSwab positivity rate: ${swabParsed.positivity_rate}\nSwabs in last 24 hours: ${swabParsed.swabs_24hr}\nVaccinations since ${vacinationData.date}: ${vacinationData.totalVaccinations} #COVID19 #ireland #covid19Ireland`
-      console.log(tweetText)
 
       const alreadyTweeted = await this.hasTweetedToday(currDateStr)
 
@@ -123,6 +122,7 @@ class CovidTweeter {
   )
 }
 
+// $ sam local invoke tweetIrishCovid19Stats
 exports.handler = async () => {
   const bot = new CovidTweeter
   await bot.tweetSummary()
