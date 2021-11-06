@@ -20,8 +20,8 @@ class CovidTweeter {
   private API_URL = process.env.API_URL
   private HOSPITAL_URL = process.env.HOSPITAL_URL || ''
   private ICU_URL = process.env.ICU_URL || ''
-  private FIRST_DOSE_VACCINATION_URL = process.env.VAC_ONE_URL || ''
-  private SECOND_DOSE_VACCINATION_URL = process.env.VAC_TWO_URL || ''
+  // private FIRST_DOSE_VACCINATION_URL = process.env.VAC_ONE_URL || ''
+  // private SECOND_DOSE_VACCINATION_URL = process.env.VAC_TWO_URL || ''
   private consumer_key = process.env.APPLICATION_CONSUMER_KEY
   private consumer_secret = process.env.APPLICATION_CONSUMER_SECRET
   private access_token = process.env.ACCESS_TOKEN
@@ -46,28 +46,28 @@ class CovidTweeter {
       const currDate = new Date()
       const dataFreshnessDate = await fetch(`${this.API_URL}/info/date`, { method: 'GET' })
       const cases = await fetch(`${this.API_URL}/daily/cases`, { method: 'GET' })
-      const deaths = await fetch(`${this.API_URL}/daily/deaths`, { method: 'GET' })
+      // const deaths = await fetch(`${this.API_URL}/daily/deaths`, { method: 'GET' }) -- API stopped working.
       const hospitalCases = await fetch(this.HOSPITAL_URL, { method: 'GET' })
       const icuCases = await fetch(this.ICU_URL, { method: 'GET' })
       const swabData = await fetch(`${this.API_URL}/swabs/json`, { method: 'GET' })
-      const vacOneResponse = await fetch(`${this.FIRST_DOSE_VACCINATION_URL}`, { method: 'GET' })
-      const vacTwoResponse = await fetch(`${this.SECOND_DOSE_VACCINATION_URL}`, { method: 'GET' })
+      // const vacOneResponse = await fetch(`${this.FIRST_DOSE_VACCINATION_URL}`, { method: 'GET' }) -- API now requires a token.
+      // const vacTwoResponse = await fetch(`${this.SECOND_DOSE_VACCINATION_URL}`, { method: 'GET' })
       const swabParsed = await swabData.json() as SwabData
       const casesParsed = await cases.json()
-      const deathsParsed = await deaths.json()
+      // const deathsParsed = await deaths.json()
       const hospitalCasesParsed = await hospitalCases.json()
       const icuCasesParsed = await icuCases.json()
-      const vacOneData = await vacOneResponse.json()
-      const vacTwoData = await vacTwoResponse.json()
+      // const vacOneData = await vacOneResponse.json()
+      // const vacTwoData = await vacTwoResponse.json()
       const dataFreshnessDateParsed = new Date(await dataFreshnessDate.text()).toDateString()
       const hospitalizations = hospitalCasesParsed.features[0].attributes.SUM_number_of_confirmed_covid_1_sum
       const icuAdmissions = icuCasesParsed.features[0].attributes.ncovidconf_sum
-      const firstDoses = vacOneData.features[0].attributes.firstDose_max
-      const secondtDoses = vacTwoData.features[0].attributes.secondDose_max
+      // const firstDoses = vacOneData.features[0].attributes.firstDose_max
+      // const secondtDoses = vacTwoData.features[0].attributes.secondDose_max
 
       const currDateStr = currDate.toDateString()
       const formattedDate = currDate.toLocaleDateString('en-ie', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-      const tweetText = `${formattedDate}\nCases: ${casesParsed}\nDeaths: ${deathsParsed}\nHospital cases: ${hospitalizations}\nICU cases: ${icuAdmissions}\n+Swabs: ${swabParsed.positive_swabs}\n+Swab rate: ${swabParsed.positivity_rate}\nSwabs in last 24hrs: ${swabParsed.swabs_24hr}\nTotal 1st dose vaccinations: ${firstDoses}\nTotal 2nd dose vaccinations: ${secondtDoses}\n#COVID19 #ireland #covid19Ireland`
+      const tweetText = `📅\n${formattedDate}\n\n🦠\nCases: ${casesParsed}\n\n🏥\nHospital cases: ${hospitalizations}\nICU cases: ${icuAdmissions}\n\n+Swabs: ${swabParsed.positive_swabs}\n+Swab rate: ${swabParsed.positivity_rate}\nSwabs in last 24hrs: ${swabParsed.swabs_24hr}\n\n#COVID19 #ireland #covid19Ireland`
       const alreadyTweeted = await this.hasTweetedToday(currDateStr)
       if (currDateStr === dataFreshnessDateParsed) {
         if (alreadyTweeted) {
@@ -103,7 +103,8 @@ class CovidTweeter {
   )
 }
 
-// $ sam local invoke tweetIrishCovid19Stats
+// Build and run locally (will post to Twitter!):
+// $ npm run build && sam local invoke tweetIrishCovid19Stats
 exports.handler = async () => {
   const bot = new CovidTweeter
   await bot.tweetSummary()
